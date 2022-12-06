@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Rozpoznawanie Głosowe</title>
+        <style>
+            .container {
+                text-align: center;
+            }
+
+            h1 {
+                color: darkred;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Pole rozpoznawania głosowego</h1>
+            <input type="text" x-webkit-speech>
+            <i><br><br>Pole tekstowe powyżej akceptuje wprowadzanie głosowe.<i>
+        </div>
+    </body>
+</html>
