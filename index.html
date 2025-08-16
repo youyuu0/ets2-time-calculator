@@ -1,23 +1,137 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Rozpoznawanie Głosowe</title>
-        <style>
-            .container {
-                text-align: center;
-            }
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ETS2 Time Converter</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; color: #222; }
+    h1 { font-size: 22px; }
+    .section { margin-bottom: 20px; padding: 10px; background: #fff; border: 1px solid #ccc; }
+    label { display: block; margin-top: 8px; }
+    input { padding: 6px; width: 100px; margin-top: 4px; }
+    .output { margin-top: 10px; font-weight: bold; }
+    select { margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h1 id="title">ETS2 Time Converter</h1>
+  <div>
+    <label for="lang">Language / Język:</label>
+    <select id="lang">
+      <option value="en" selected>English</option>
+      <option value="pl">Polski</option>
+    </select>
+  </div>
 
-            h1 {
-                color: darkred;
-            }
-        </style>
-    </head>
+  <div class="section">
+    <h2 id="etsToRealTitle">ETS2 → Real</h2>
+    <label id="etsHoursLabel" for="etsH">Game hours:</label>
+    <input id="etsH" type="number" min="0" step="1">
+    <label id="etsMinutesLabel" for="etsM">Game minutes:</label>
+    <input id="etsM" type="number" min="0" max="59" step="1">
+    <label id="scaleLabelA" for="scaleA">Scale (1:x):</label>
+    <input id="scaleA" type="number" min="1" step="1" value="19">
+    <div class="output" id="outA">Real time: 0 h 00 min (0.00 h)</div>
+  </div>
 
-    <body>
-        <div class="container">
-            <h1>Pole rozpoznawania głosowego</h1>
-            <input type="text" x-webkit-speech>
-            <i><br><br>Pole tekstowe powyżej akceptuje wprowadzanie głosowe.<i>
-        </div>
-    </body>
+  <div class="section">
+    <h2 id="realToEtsTitle">Real → ETS2</h2>
+    <label id="realHoursLabel" for="realH">Real hours:</label>
+    <input id="realH" type="number" min="0" step="1">
+    <label id="realMinutesLabel" for="realM">Real minutes:</label>
+    <input id="realM" type="number" min="0" max="59" step="1">
+    <label id="scaleLabelB" for="scaleB">Scale (1:x):</label>
+    <input id="scaleB" type="number" min="1" step="1" value="19">
+    <div class="output" id="outB">Game time: 0 h 00 min (0.00 h)</div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function parseHM(hEl, mEl) {
+      const h = Math.max(0, Number(hEl.value || 0));
+      const m = Math.max(0, Number(mEl.value || 0));
+      return h + m/60;
+    }
+
+    function fmtHours(decHours) {
+      const totalMin = Math.round(decHours * 60);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      return { h, m, dec: (totalMin/60).toFixed(2) };
+    }
+
+    function updateA() {
+      const scale = Math.max(1, Number($("scaleA").value || 19));
+      $("scaleB").value = scale;
+      const etsHours = parseHM($("etsH"), $("etsM"));
+      const realHours = etsHours / scale;
+      const { h, m, dec } = fmtHours(realHours);
+      $("outA").textContent = lang.outReal + ` ${h} h ${String(m).padStart(2,'0')} min (${dec} h)`;
+    }
+
+    function updateB() {
+      const scale = Math.max(1, Number($("scaleB").value || 19));
+      $("scaleA").value = scale;
+      const realHours = parseHM($("realH"), $("realM"));
+      const etsHours = realHours * scale;
+      const { h, m, dec } = fmtHours(etsHours);
+      $("outB").textContent = lang.outGame + ` ${h} h ${String(m).padStart(2,'0')} min (${dec} h)`;
+    }
+
+    ["etsH","etsM","scaleA"].forEach(id=> $(id).addEventListener("input", updateA));
+    ["realH","realM","scaleB"].forEach(id=> $(id).addEventListener("input", updateB));
+
+    // Language support
+    const texts = {
+      en: {
+        title: "ETS2 Time Converter",
+        etsToReal: "ETS2 → Real",
+        realToEts: "Real → ETS2",
+        etsHours: "Game hours:",
+        etsMinutes: "Game minutes:",
+        realHours: "Real hours:",
+        realMinutes: "Real minutes:",
+        scale: "Scale (1:x):",
+        outReal: "Real time:",
+        outGame: "Game time:"
+      },
+      pl: {
+        title: "Kalkulator czasu ETS2",
+        etsToReal: "ETS2 → Rzeczywisty",
+        realToEts: "Rzeczywisty → ETS2",
+        etsHours: "Godziny w grze:",
+        etsMinutes: "Minuty w grze:",
+        realHours: "Godziny realne:",
+        realMinutes: "Minuty realne:",
+        scale: "Skala (1:x):",
+        outReal: "Czas rzeczywisty:",
+        outGame: "Czas w grze:" 
+      }
+    };
+
+    let lang = texts.en;
+
+    function updateLanguage(l) {
+      lang = texts[l];
+      $("title").textContent = lang.title;
+      $("etsToRealTitle").textContent = lang.etsToReal;
+      $("realToEtsTitle").textContent = lang.realToEts;
+      $("etsHoursLabel").textContent = lang.etsHours;
+      $("etsMinutesLabel").textContent = lang.etsMinutes;
+      $("realHoursLabel").textContent = lang.realHours;
+      $("realMinutesLabel").textContent = lang.realMinutes;
+      $("scaleLabelA").textContent = lang.scale;
+      $("scaleLabelB").textContent = lang.scale;
+      updateA();
+      updateB();
+    }
+
+    $("lang").addEventListener("change", e => updateLanguage(e.target.value));
+
+    updateA();
+    updateB();
+  </script>
+</body>
 </html>
