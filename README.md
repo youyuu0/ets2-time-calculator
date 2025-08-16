@@ -1,0 +1,2 @@
+Kalkulator czasu ETS2 przelicza czas gry na czas rzeczywisty i odwrotnie. Często go potrzebowałem, a obliczanie go za każdym razem za pomocą standardowego kalkulatora Windows było czasochłonne. Nie mogłem znaleźć niczego podobnego w internecie, więc postanowiłem sam go stworzyć.
+The ETS2 time calculator calculates game time into real time, or vice versa. I needed this often, and calculating it each time with a standard Windows calculator was time-consuming. I couldn't find anything similar online, so I decided to make one myself.
